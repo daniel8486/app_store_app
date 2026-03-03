@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(flutter pub get)",
-      "Bash(flutter analyze)",
-      "Bash(xargs sed -i '' 's/colorScheme\\\\.surfaceContainerHighest/colorScheme.surfaceVariant/g; s/colorScheme\\\\.surfaceContainerLow/colorScheme.surface/g')"
-    ]
-  }
-}
