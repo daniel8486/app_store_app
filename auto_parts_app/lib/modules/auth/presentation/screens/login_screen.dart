@@ -33,7 +33,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       await ref
           .read(currentUserProvider.notifier)
           .login(_emailCtrl.text.trim(), _passwordCtrl.text);
-      if (mounted) context.go('/home');
+      if (mounted) {
+        final user = ref.read(currentUserProvider).value;
+        if (user?.isAdmin == true) {
+          context.go('/admin/dashboard');
+        } else if (user?.isSeller == true) {
+          context.go('/seller/dashboard');
+        } else {
+          context.go('/home');
+        }
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -107,8 +116,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       icon: Icon(
                         _obscure ? Icons.visibility_off : Icons.visibility,
                       ),
-                      onPressed: () =>
-                          setState(() => _obscure = !_obscure),
+                      onPressed: () => setState(() => _obscure = !_obscure),
                     ),
                   ),
                 ),
@@ -182,6 +190,25 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         accent: true,
                       ),
                     ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _QuickLoginBtn(
+                        icon: Icons.admin_panel_settings,
+                        label: 'Admin',
+                        onTap: () {
+                          _emailCtrl.text = 'admin@autoshop.com';
+                          _passwordCtrl.text = '123456';
+                          _login();
+                        },
+                        accent: false,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(child: SizedBox.shrink()),
                   ],
                 ),
               ],

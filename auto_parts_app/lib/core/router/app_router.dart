@@ -70,9 +70,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       if (authAsync.isLoading) return null;
 
       final isLoggedIn = authAsync.value != null;
+      final user = authAsync.value;
       final path = state.matchedLocation;
 
-      const protectedPaths = ['/payment', '/orders', '/profile'];
+      // Admin não pode acessar home
+      if (user?.isAdmin == true && path == '/home') {
+        return '/admin/dashboard';
+      }
+
+      // Vendedor não pode acessar home
+      if (user?.isSeller == true && path == '/home') {
+        return '/seller/dashboard';
+      }
+
+      const protectedPaths = ['/payment', '/orders', '/profile', '/admin'];
       final isProtected = protectedPaths.any((p) => path.startsWith(p));
       if (isProtected && !isLoggedIn) return '/login';
 
@@ -181,6 +192,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           path: '/seller/coupons',
           builder: (_, __) => const SellerCouponsScreen()),
       // ── Admin routes ──────────────────────────────────────────────
+      GoRoute(path: '/admin', redirect: (context, state) => '/admin/dashboard'),
+      GoRoute(
+          path: '/admin/dashboard',
+          builder: (_, __) => const AdminDashboardScreen()),
       GoRoute(
           path: '/admin/produtos',
           builder: (_, __) => const AdminProductsListScreen()),

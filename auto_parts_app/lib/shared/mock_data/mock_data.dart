@@ -13,6 +13,7 @@ class MockData {
     'phone': '11999998888',
     'cpf': '12345678901',
     'isSeller': false,
+    'isAdmin': false,
   };
 
   static const Map<String, dynamic> defaultSeller = {
@@ -23,6 +24,18 @@ class MockData {
     'phone': '11988887777',
     'cpf': '98765432100',
     'isSeller': true,
+    'isAdmin': false,
+  };
+
+  static const Map<String, dynamic> defaultAdmin = {
+    'id': 'admin_test',
+    'name': 'Admin AutoShop',
+    'email': 'admin@autoshop.com',
+    'password': '123456',
+    'phone': '1133334444',
+    'cpf': '11122233344',
+    'isSeller': false,
+    'isAdmin': true,
   };
 
   static const List<Map<String, dynamic>> parts = [

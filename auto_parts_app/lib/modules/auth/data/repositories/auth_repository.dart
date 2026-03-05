@@ -16,6 +16,7 @@ class AuthRepository {
       final users = [
         MockData.defaultUser,
         MockData.defaultSeller,
+        MockData.defaultAdmin,
       ];
       await prefs.setString(_usersKey, jsonEncode(users));
     }
@@ -27,18 +28,23 @@ class AuthRepository {
     final raw = prefs.getString(_usersKey);
     if (raw == null) return [];
     final list = jsonDecode(raw) as List;
-    return list.map((e) => UserModel.fromMap(e as Map<String, dynamic>)).toList();
+    return list
+        .map((e) => UserModel.fromMap(e as Map<String, dynamic>))
+        .toList();
   }
 
   Future<void> _saveUsers(List<UserModel> users) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_usersKey, jsonEncode(users.map((u) => u.toMap()).toList()));
+    await prefs.setString(
+        _usersKey, jsonEncode(users.map((u) => u.toMap()).toList()));
   }
 
   Future<User> login(String email, String password) async {
     final users = await _getUsers();
     final user = users.firstWhere(
-      (u) => u.email.toLowerCase() == email.toLowerCase() && u.password == password,
+      (u) =>
+          u.email.toLowerCase() == email.toLowerCase() &&
+          u.password == password,
       orElse: () => throw Exception('E-mail ou senha incorretos'),
     );
 
@@ -55,7 +61,8 @@ class AuthRepository {
     required String password,
   }) async {
     final users = await _getUsers();
-    final exists = users.any((u) => u.email.toLowerCase() == email.toLowerCase());
+    final exists =
+        users.any((u) => u.email.toLowerCase() == email.toLowerCase());
     if (exists) throw Exception('E-mail já cadastrado');
 
     final newUser = UserModel(

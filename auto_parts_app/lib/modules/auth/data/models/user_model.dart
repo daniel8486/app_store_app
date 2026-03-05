@@ -10,6 +10,7 @@ class UserModel extends User {
     required super.phone,
     required super.cpf,
     super.isSeller,
+    super.isAdmin,
     required this.password,
   });
 
@@ -21,6 +22,7 @@ class UserModel extends User {
       phone: map['phone'] as String,
       cpf: map['cpf'] as String,
       isSeller: (map['isSeller'] as bool?) ?? false,
+      isAdmin: (map['isAdmin'] as bool?) ?? false,
       password: map['password'] as String,
     );
   }
@@ -33,6 +35,7 @@ class UserModel extends User {
       'phone': phone,
       'cpf': cpf,
       'isSeller': isSeller,
+      'isAdmin': isAdmin,
       'password': password,
     };
   }

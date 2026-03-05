@@ -5,6 +5,7 @@ class User {
   final String phone;
   final String cpf;
   final bool isSeller;
+  final bool isAdmin;
 
   const User({
     required this.id,
@@ -13,6 +14,7 @@ class User {
     required this.phone,
     required this.cpf,
     this.isSeller = false,
+    this.isAdmin = false,
   });
 
   User copyWith({
@@ -22,6 +24,7 @@ class User {
     String? phone,
     String? cpf,
     bool? isSeller,
+    bool? isAdmin,
   }) {
     return User(
       id: id ?? this.id,
@@ -30,6 +33,7 @@ class User {
       phone: phone ?? this.phone,
       cpf: cpf ?? this.cpf,
       isSeller: isSeller ?? this.isSeller,
+      isAdmin: isAdmin ?? this.isAdmin,
     );
   }
 }

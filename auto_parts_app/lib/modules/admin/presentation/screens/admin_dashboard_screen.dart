@@ -18,98 +18,236 @@ class AdminDashboardScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Painel Administrativo'),
-        elevation: 1,
+        elevation: 0,
         scrolledUnderElevation: 0,
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          context.push('/admin/produto/novo');
-        },
-        tooltip: 'Novo Produto',
-        child: const Icon(Icons.add),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Cards de Estatísticas
+            // Header com boas-vindas
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppTheme.primaryColor,
+                    AppTheme.primaryColor.withOpacity(0.8),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Bem-vindo, Admin',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Gerencie todos os aspectos do seu negócio',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.8),
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // SEÇÃO 1: Estatísticas Gerais
                   const Text(
-                    'Resumo Geral',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  consumerGridView(ref, totalAsync, lowStockAsync),
-                  const SizedBox(height: 24),
-
-                  // Produtos recentes
-                  const Text(
-                    'Produtos Recentes',
+                    'Estatísticas do Sistema',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 12),
-                  productsAsync.when(
-                    data: (products) {
-                      if (products.isEmpty) {
-                        return Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(24),
-                            child: Text(
-                              'Nenhum produto cadastrado',
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ),
-                        );
-                      }
-
-                      return Column(
-                        children: products.take(5).map((product) {
-                          return _buildProductListItem(context, product);
-                        }).toList(),
-                      );
-                    },
-                    loading: () => const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(24),
-                        child: CircularProgressIndicator(),
-                      ),
-                    ),
-                    error: (error, stack) => Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(24),
-                        child: Text(
-                          'Erro ao carregar produtos',
-                          style: TextStyle(color: Colors.red[600]),
+                  GridView.count(
+                    crossAxisCount: 2,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
+                    childAspectRatio: 1,
+                    children: [
+                      totalAsync.when(
+                        data: (total) => _buildStatCard(
+                          title: 'Produtos',
+                          value: total.toString(),
+                          icon: Icons.inventory_2,
+                          color: Colors.blue,
+                          onTap: () => context.push('/admin/produtos'),
+                        ),
+                        loading: () => _buildStatCard(
+                          title: 'Produtos',
+                          value: '-',
+                          icon: Icons.inventory_2,
+                          color: Colors.blue,
+                          onTap: () {},
+                        ),
+                        error: (_, __) => _buildStatCard(
+                          title: 'Produtos',
+                          value: '0',
+                          icon: Icons.inventory_2,
+                          color: Colors.blue,
+                          onTap: () {},
                         ),
                       ),
+                      lowStockAsync.when(
+                        data: (products) => _buildStatCard(
+                          title: 'Baixo Estoque',
+                          value: products.length.toString(),
+                          icon: Icons.warning_amber,
+                          color: Colors.orange,
+                          onTap: () => context.push('/admin/produtos'),
+                        ),
+                        loading: () => _buildStatCard(
+                          title: 'Baixo Estoque',
+                          value: '-',
+                          icon: Icons.warning_amber,
+                          color: Colors.orange,
+                          onTap: () {},
+                        ),
+                        error: (_, __) => _buildStatCard(
+                          title: 'Baixo Estoque',
+                          value: '0',
+                          icon: Icons.warning_amber,
+                          color: Colors.orange,
+                          onTap: () {},
+                        ),
+                      ),
+                      _buildStatCard(
+                        title: 'Usuários',
+                        value: '248',
+                        icon: Icons.people,
+                        color: Colors.purple,
+                        onTap: () {},
+                      ),
+                      _buildStatCard(
+                        title: 'Vendedores',
+                        value: '12',
+                        icon: Icons.store,
+                        color: Colors.teal,
+                        onTap: () => context.push('/seller/dashboard'),
+                      ),
+                      _buildStatCard(
+                        title: 'Pedidos',
+                        value: '156',
+                        icon: Icons.receipt,
+                        color: Colors.indigo,
+                        onTap: () => context.push('/orders'),
+                      ),
+                      _buildStatCard(
+                        title: 'Faturamento',
+                        value: 'R\$ 8.5K',
+                        icon: Icons.trending_up,
+                        color: Colors.green,
+                        onTap: () {},
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 32),
+
+                  // SEÇÃO 2: Módulos do Sistema
+                  const Text(
+                    'Módulos do Sistema',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton(
-                      onPressed: () {
-                        context.push('/admin/produtos');
-                      },
-                      child: const Text('Ver Todos os Produtos'),
-                    ),
+                  GridView.count(
+                    crossAxisCount: 2,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
+                    childAspectRatio: 1.1,
+                    children: [
+                      _buildModuleCard(
+                        context,
+                        icon: Icons.shopping_bag,
+                        label: 'Produtos',
+                        subtitle: 'Gerenciar catálogo',
+                        color: Colors.blue,
+                        onTap: () => context.push('/admin/produtos'),
+                      ),
+                      _buildModuleCard(
+                        context,
+                        icon: Icons.people,
+                        label: 'Usuários',
+                        subtitle: 'Clientes registrados',
+                        color: Colors.purple,
+                        onTap: () {},
+                      ),
+                      _buildModuleCard(
+                        context,
+                        icon: Icons.store,
+                        label: 'Vendedores',
+                        subtitle: 'Gerenciar lojistas',
+                        color: Colors.teal,
+                        onTap: () => context.push('/seller/dashboard'),
+                      ),
+                      _buildModuleCard(
+                        context,
+                        icon: Icons.receipt_long,
+                        label: 'Pedidos',
+                        subtitle: 'Histórico de vendas',
+                        color: Colors.indigo,
+                        onTap: () => context.push('/orders'),
+                      ),
+                      _buildModuleCard(
+                        context,
+                        icon: Icons.payment,
+                        label: 'Pagamentos',
+                        subtitle: 'Transações',
+                        color: Colors.green,
+                        onTap: () => context.push('/payment'),
+                      ),
+                      _buildModuleCard(
+                        context,
+                        icon: Icons.discount,
+                        label: 'Cupons',
+                        subtitle: 'Promoções',
+                        color: Colors.red,
+                        onTap: () => context.push('/coupons'),
+                      ),
+                      _buildModuleCard(
+                        context,
+                        icon: Icons.local_shipping,
+                        label: 'Entregas',
+                        subtitle: 'Rastreamento',
+                        color: Colors.orange,
+                        onTap: () {},
+                      ),
+                      _buildModuleCard(
+                        context,
+                        icon: Icons.star,
+                        label: 'Avaliações',
+                        subtitle: 'Reviews dos produtos',
+                        color: Colors.amber,
+                        onTap: () {},
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 32),
 
-                  // Produtos com baixo estoque
+                  // SEÇÃO 3: Alertas Importantes
                   const Text(
-                    'Produtos com Baixo Estoque',
+                    'Alertas Importantes',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -124,19 +262,36 @@ class AdminDashboardScreen extends ConsumerWidget {
                           decoration: BoxDecoration(
                             color: Colors.green[50],
                             border: Border.all(color: Colors.green[200]!),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
                             children: [
                               Icon(
                                 Icons.check_circle,
                                 color: Colors.green[600],
+                                size: 28,
                               ),
                               const SizedBox(width: 12),
-                              Text(
-                                'Todos os produtos têm estoque adequado!',
-                                style: TextStyle(
-                                  color: Colors.green[700],
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Situação Normal',
+                                      style: TextStyle(
+                                        color: Colors.green[700],
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      'Todos os produtos têm estoque adequado',
+                                      style: TextStyle(
+                                        color: Colors.green[600],
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
@@ -145,8 +300,78 @@ class AdminDashboardScreen extends ConsumerWidget {
                       }
 
                       return Column(
-                        children: products.map((product) {
-                          return _buildLowStockItem(context, product);
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: products.take(3).map((product) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Colors.red[200]!,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                                color: Colors.red[50],
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.warning_amber_rounded,
+                                    color: Colors.red[600],
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          product.name,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          'Estoque: ${product.stock}/${product.minStock} unidades',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: Colors.red[600],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  GestureDetector(
+                                    onTap: () => context.push(
+                                        '/admin/produto/${product.id}/editar'),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 6,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: AppTheme.accentColor,
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: const Text(
+                                        'Repor',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
                         }).toList(),
                       );
                     },
@@ -156,85 +381,48 @@ class AdminDashboardScreen extends ConsumerWidget {
                         child: CircularProgressIndicator(),
                       ),
                     ),
-                    error: (error, stack) => Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(24),
-                        child: Text(
-                          'Erro ao carregar produtos',
-                          style: TextStyle(color: Colors.red[600]),
-                        ),
+                    error: (_, __) => const SizedBox.shrink(),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // SEÇÃO 4: Atalhos Rápidos
+                  const Text(
+                    'Ações Rápidas',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () => context.push('/admin/produto/novo'),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Cadastrar Novo Produto'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.accentColor,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
                     ),
                   ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () => context.push('/admin/produtos'),
+                      icon: const Icon(Icons.list),
+                      label: const Text('Gerenciar Produtos'),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
                 ],
               ),
             ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget consumerGridView(
-    WidgetRef ref,
-    AsyncValue<int> totalAsync,
-    AsyncValue<List<AdminProduct>> lowStockAsync,
-  ) {
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 12,
-      childAspectRatio: 1.2,
-      children: [
-        totalAsync.when(
-          data: (total) => _buildStatCard(
-            title: 'Total de Produtos',
-            value: total.toString(),
-            icon: Icons.shopping_bag,
-            color: Colors.blue,
-            onTap: () {},
-          ),
-          loading: () => _buildStatCard(
-            title: 'Total de Produtos',
-            value: '...',
-            icon: Icons.shopping_bag,
-            color: Colors.blue,
-            onTap: () {},
-          ),
-          error: (error, stack) => _buildStatCard(
-            title: 'Total de Produtos',
-            value: '0',
-            icon: Icons.shopping_bag,
-            color: Colors.blue,
-            onTap: () {},
-          ),
-        ),
-        lowStockAsync.when(
-          data: (products) => _buildStatCard(
-            title: 'Baixo Estoque',
-            value: products.length.toString(),
-            icon: Icons.warning_amber,
-            color: Colors.orange,
-            onTap: () {},
-          ),
-          loading: () => _buildStatCard(
-            title: 'Baixo Estoque',
-            value: '...',
-            icon: Icons.warning_amber,
-            color: Colors.orange,
-            onTap: () {},
-          ),
-          error: (error, stack) => _buildStatCard(
-            title: 'Baixo Estoque',
-            value: '0',
-            icon: Icons.warning_amber,
-            color: Colors.orange,
-            onTap: () {},
-          ),
-        ),
-      ],
     );
   }
 
@@ -249,30 +437,34 @@ class AdminDashboardScreen extends ConsumerWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          border: Border.all(color: color.withOpacity(0.3)),
+          color: color.withOpacity(0.08),
+          border: Border.all(color: color.withOpacity(0.2)),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: color, size: 32),
+            Icon(icon, color: color, size: 28),
             const SizedBox(height: 8),
             Text(
               value,
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: color,
               ),
             ),
             const SizedBox(height: 4),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Text(
+                title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: Colors.grey,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ],
@@ -281,142 +473,72 @@ class AdminDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildProductListItem(BuildContext context, AdminProduct product) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: InkWell(
-        onTap: () {
-          context.push('/admin/produto/${product.id}');
-        },
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey[200]!),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(6),
-                  color: Colors.grey[100],
-                ),
-                child: Image.network(
-                  product.imageUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Icon(
-                      Icons.image_not_supported,
-                      color: Colors.grey[400],
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      product.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'R\$ ${product.finalPrice.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.primaryColor,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.blue[50],
-                  border: Border.all(color: Colors.blue[200]!),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  product.status.label,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.blue,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLowStockItem(BuildContext context, AdminProduct product) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+  Widget _buildModuleCard(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required String subtitle,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.red[200]!),
-          borderRadius: BorderRadius.circular(8),
-          color: Colors.red[50],
+          color: Colors.white,
+          border: Border.all(color: Colors.grey[200]!),
+          borderRadius: BorderRadius.circular(12),
         ),
-        child: Row(
+        child: Stack(
           children: [
-            Icon(
-              Icons.warning_amber_rounded,
-              color: Colors.red[600],
-              size: 24,
+            Positioned(
+              top: -10,
+              right: -10,
+              child: Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+              ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
+            Padding(
+              padding: const EdgeInsets.all(12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    product.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: color.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(8),
                     ),
+                    child: Icon(icon, color: color, size: 24),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Estoque: ${product.stock}/${product.minStock}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.red[600],
-                      fontWeight: FontWeight.w600,
-                    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        label,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 10,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ),
-            const SizedBox(width: 8),
-            TextButton(
-              onPressed: () {
-                context.push('/admin/produto/${product.id}/editar');
-              },
-              child: const Text('Editar'),
             ),
           ],
         ),
