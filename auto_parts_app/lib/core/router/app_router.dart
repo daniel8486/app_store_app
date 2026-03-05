@@ -35,6 +35,10 @@ import '../../modules/seller/presentation/screens/seller_coupons_screen.dart';
 import '../../modules/review/presentation/screens/product_reviews_screen.dart';
 import '../../modules/coupon/presentation/screens/coupons_screen.dart';
 import '../../modules/settings/presentation/screens/settings_screen.dart';
+import '../../modules/admin/presentation/screens/admin_dashboard_screen.dart';
+import '../../modules/admin/presentation/screens/admin_products_list_screen.dart';
+import '../../modules/admin/presentation/screens/admin_product_form_screen.dart';
+import '../../modules/admin/presentation/screens/admin_product_detail_screen.dart';
 
 /// Notifica o GoRouter quando o estado de auth muda — sem recriar o router.
 class _RouterRefreshNotifier extends ChangeNotifier {
@@ -176,6 +180,25 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
           path: '/seller/coupons',
           builder: (_, __) => const SellerCouponsScreen()),
+      // ── Admin routes ──────────────────────────────────────────────
+      GoRoute(
+          path: '/admin/produtos',
+          builder: (_, __) => const AdminProductsListScreen()),
+      GoRoute(
+          path: '/admin/produto/novo',
+          builder: (_, __) => const AdminProductFormScreen()),
+      GoRoute(
+        path: '/admin/produto/:id',
+        builder: (_, state) =>
+            AdminProductDetailScreen(productId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/admin/produto/:id/editar',
+        builder: (_, state) => AdminProductFormScreen(
+          productId: state.pathParameters['id'],
+          isEditing: true,
+        ),
+      ),
     ],
     errorBuilder: (_, state) => Scaffold(
       backgroundColor: const Color(0xFF0D1B2A),
